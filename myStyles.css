@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ============================================
    FUTURISTIC TIC TAC TOE - CYBER THEME
    ============================================ */
@@ -405,12 +406,84 @@ body {
 }
 
 /* Popup */
+=======
+body {
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  background-color: #f0f8ff;
+  margin: 0;
+  padding: 0;
+}
+
+.game-container {
+  margin: 50px auto;
+  max-width: 400px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #333;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 5px;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  background-color: #dcdcdc;
+  border: 2px solid #cccccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.cell.taken {
+  pointer-events: none;
+}
+
+.cell:hover {
+  background-color: #f0f0f0;
+}
+
+#restart-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#restart-btn:hover {
+  background-color: #45a049;
+}
+
+>>>>>>> e2985d3f6d106918e20c923d5df5902a57c3f222
 .popup {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   display: none;
@@ -539,4 +612,34 @@ body {
   .score-value {
     font-size: 1.5rem;
   }
+=======
+  background-color: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#close-popup {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#close-popup:hover {
+  background-color: #e53935;
+>>>>>>> e2985d3f6d106918e20c923d5df5902a57c3f222
 }
