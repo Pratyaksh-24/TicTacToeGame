@@ -288,3 +288,16 @@ class TicTacToe {
 document.addEventListener('DOMContentLoaded', () => {
   window.game = new TicTacToe();
 });
+
+// Mobile Accessibility: Prevent Scrolling & Zooming
+document.addEventListener('touchmove', (e) => {
+  if (e.scale !== 1) { e.preventDefault(); }
+}, { passive: false });
+
+document.addEventListener('dblclick', (e) => {
+  e.preventDefault();
+});
+
+document.addEventListener('gesturestart', (e) => {
+  e.preventDefault();
+});
