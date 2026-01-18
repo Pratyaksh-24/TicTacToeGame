@@ -1,297 +1,290 @@
-<<<<<<< HEAD
-// ============================================
-// FUTURISTIC TIC TAC TOE - GAME LOGIC
-// ============================================
+/**
+ * PREMIUM TIC TAC TOE ENGINE
+ * Clean, Modular, and Animation-Driven
+ */
 
-// DOM Elements
-const cells = document.querySelectorAll('.cell');
-const restartBtn = document.getElementById('restart-btn');
-const resetScoresBtn = document.getElementById('reset-scores-btn');
-const popup = document.getElementById('winner-popup');
-const winnerMessage = document.getElementById('winner-message');
-const popupIcon = document.getElementById('popup-icon');
-const popupSubtitle = document.querySelector('.popup-subtitle');
-const closePopup = document.getElementById('close-popup');
-const playAgainBtn = document.getElementById('play-again');
-const currentPlayerDisplay = document.getElementById('current-player');
-const scoreXDisplay = document.getElementById('score-x');
-const scoreODisplay = document.getElementById('score-o');
+class TicTacToe {
+  constructor() {
+    // DOM Elements
+    this.elements = {
+      board: document.querySelector('.board'),
+      cells: document.querySelectorAll('.cell'),
+      currentPlayer: document.getElementById('current-player'),
+      turnIndicator: document.querySelector('.turn-indicator'),
+      scoreX: document.getElementById('score-x'),
+      scoreO: document.getElementById('score-o'),
+      crownX: document.getElementById('crown-x'),
+      crownO: document.getElementById('crown-o'),
+      popup: document.getElementById('winner-popup'),
+      popupMessage: document.getElementById('winner-message'),
+      popupIcon: document.getElementById('popup-icon'),
+      popupSubtitle: document.querySelector('.popup-subtitle'),
+      btns: {
+        restart: document.getElementById('restart-btn'),
+        reset: document.getElementById('reset-scores-btn'),
+        closePopup: document.getElementById('close-popup'),
+        playAgain: document.getElementById('play-again')
+      }
+    };
 
-// Game State
-let currentPlayer = 'X';
-let board = ['', '', '', '', '', '', '', '', ''];
-let gameActive = true;
-let scores = { X: 0, O: 0 };
-let winningCells = [];
+    // Configuration
+    this.config = {
+      winDelay: 600, // Wait for symbol animation before showing win
+      popupDelay: 800, // Wait for win animation before popup
+      winningCombos: [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ]
+    };
 
-// Winning Combinations
-const winningCombinations = [
-  [0, 1, 2], // Top row
-  [3, 4, 5], // Middle row
-  [6, 7, 8], // Bottom row
-  [0, 3, 6], // Left column
-  [1, 4, 7], // Middle column
-  [2, 5, 8], // Right column
-  [0, 4, 8], // Diagonal top-left to bottom-right
-  [2, 4, 6], // Diagonal top-right to bottom-left
-];
+    // State
+    this.state = {
+      board: Array(9).fill(null),
+      currentPlayer: 'X',
+      isActive: true, // Prevents clicks during animations
+      scores: { X: 0, O: 0 }
+    };
 
-// Initialize Game
-function initGame() {
-  updateTurnIndicator();
-  loadScores();
-  updateScoreDisplay();
-}
+    this.init();
+  }
 
-// Update Turn Indicator
-function updateTurnIndicator() {
-  currentPlayerDisplay.textContent = currentPlayer;
-  currentPlayerDisplay.className = 'current-player';
-  currentPlayerDisplay.classList.add(currentPlayer === 'X' ? 'player-x' : 'player-o');
-}
+  init() {
+    this.loadScores();
+    this.updateUI();
+    this.attachListeners();
+  }
 
-// Check for Winner
-=======
-const cells = document.querySelectorAll('.cell');
-const restartBtn = document.getElementById('restart-btn');
-const popup = document.getElementById('winner-popup');
-const winnerMessage = document.getElementById('winner-message');
-const closePopup = document.getElementById('close-popup');
+  /**
+   * Event Listeners
+   */
+  attachListeners() {
+    this.elements.cells.forEach(cell => {
+      cell.addEventListener('click', (e) => this.handleCellClick(e));
+    });
 
-let currentPlayer = 'X';
-let board = ['', '', '', '', '', '', '', '', ''];
-let gameActive = true;
+    this.elements.btns.restart.addEventListener('click', () => this.restartGame());
+    this.elements.btns.reset.addEventListener('click', () => this.resetScores());
+    this.elements.btns.closePopup.addEventListener('click', () => this.hidePopup());
+    this.elements.btns.playAgain.addEventListener('click', () => {
+      this.hidePopup();
+      this.restartGame();
+    });
+  }
 
-const winningCombinations = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+  /**
+   * Core Gameplay Logic
+   */
+  handleCellClick(e) {
+    const cell = e.currentTarget; // Use currentTarget to ensure we get the div
+    const index = parseInt(cell.getAttribute('data-index'));
 
->>>>>>> e2985d3f6d106918e20c923d5df5902a57c3f222
-function checkWinner() {
-  for (const combination of winningCombinations) {
-    const [a, b, c] = combination;
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      gameActive = false;
-<<<<<<< HEAD
-      winningCells = combination;
-      highlightWinningCells(combination);
-      
-      // Update score
-      scores[currentPlayer]++;
-      saveScores();
-      updateScoreDisplay();
-      
-      // Show winner popup after a short delay for animation
-      setTimeout(() => {
-        showWinner(currentPlayer);
-      }, 600);
-      
-      return true;
+    // Guard clauses: Cell taken or game inactive
+    if (this.state.board[index] || !this.state.isActive) return;
+
+    // 1. Update State
+    this.state.board[index] = this.state.currentPlayer;
+
+    // 2. Animate Selection
+    this.renderMove(cell, this.state.currentPlayer);
+
+    // 3. Game Loop Check
+    if (this.checkWin()) {
+      this.handleWin();
+    } else if (this.checkDraw()) {
+      this.handleDraw();
+    } else {
+      this.switchTurn();
     }
   }
-  
-  // Check for draw
-  if (!board.includes('')) {
-    gameActive = false;
+
+  switchTurn() {
+    this.state.currentPlayer = this.state.currentPlayer === 'X' ? 'O' : 'X';
+    this.updateTurnIndicator();
+  }
+
+  /**
+   * Win/Draw Detection
+   */
+  checkWin() {
+    return this.config.winningCombos.find(combo => {
+      return combo.every(index =>
+        this.state.board[index] === this.state.currentPlayer
+      );
+    });
+  }
+
+  checkDraw() {
+    return !this.state.board.includes(null);
+  }
+
+  /**
+   * Game End Handlers
+   */
+  handleWin() {
+    this.state.isActive = false;
+    const winningCombo = this.checkWin();
+
+    // Delay to allow the final move animation to play
     setTimeout(() => {
-      showDraw();
-    }, 300);
-    return true;
+      this.highlightWin(winningCombo);
+      this.updateScore(this.state.currentPlayer);
+
+      setTimeout(() => {
+        this.showPopup(this.state.currentPlayer);
+      }, this.config.popupDelay);
+    }, 100);
   }
-  
-  return false;
-}
 
-// Highlight Winning Cells
-function highlightWinningCells(combination) {
-  combination.forEach(index => {
-    cells[index].classList.add('winning-cell');
-  });
-}
+  handleDraw() {
+    this.state.isActive = false;
+    this.elements.board.classList.add('game-over'); // Dims everything slightly
 
-// Show Winner Popup
-function showWinner(player) {
-  const messages = [
-    'Incredible victory!',
-    'Flawless execution!',
-    'Dominated the grid!',
-    'Strategic genius!',
-    'Unstoppable force!'
-  ];
-  
-  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-  
-  winnerMessage.textContent = `${player} WINS!`;
-  winnerMessage.className = '';
-  winnerMessage.classList.add(player === 'X' ? 'winner-x' : 'winner-o');
-  
-  popupIcon.textContent = player === 'X' ? '🔥' : '💎';
-  popupSubtitle.textContent = randomMessage;
-  
-  popup.style.display = 'flex';
-}
-
-// Show Draw Popup
-function showDraw() {
-  winnerMessage.textContent = "IT'S A DRAW!";
-  winnerMessage.className = 'draw';
-  popupIcon.textContent = '🤝';
-  popupSubtitle.textContent = 'The battle continues...';
-  popup.style.display = 'flex';
-}
-
-// Handle Cell Click
-function handleCellClick(e) {
-  const cell = e.target;
-  const index = parseInt(cell.getAttribute('data-index'));
-
-  // Check if cell is already taken or game is not active
-  if (board[index] || !gameActive) return;
-
-  // Update board state
-  board[index] = currentPlayer;
-  cell.textContent = currentPlayer;
-  cell.classList.add('taken');
-  cell.classList.add(currentPlayer === 'X' ? 'x-cell' : 'o-cell');
-
-  // Check for winner
-  if (!checkWinner()) {
-    // Switch player
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-    updateTurnIndicator();
+    setTimeout(() => {
+      this.showPopup('draw');
+    }, this.config.popupDelay);
   }
-}
 
-// Restart Round (keeps scores)
-function restartRound() {
-  board = ['', '', '', '', '', '', '', '', ''];
-  currentPlayer = 'X';
-  gameActive = true;
-  winningCells = [];
-  
-  cells.forEach(cell => {
-    cell.textContent = '';
-    cell.classList.remove('taken', 'x-cell', 'o-cell', 'winning-cell');
-  });
-  
-  updateTurnIndicator();
-  popup.style.display = 'none';
-}
-
-// Reset All Scores
-function resetScores() {
-  scores = { X: 0, O: 0 };
-  saveScores();
-  updateScoreDisplay();
-  restartRound();
-}
-
-// Update Score Display
-function updateScoreDisplay() {
-  scoreXDisplay.textContent = scores.X;
-  scoreODisplay.textContent = scores.O;
-  
-  // Add animation effect
-  scoreXDisplay.style.transform = 'scale(1.2)';
-  scoreODisplay.style.transform = 'scale(1.2)';
-  
-  setTimeout(() => {
-    scoreXDisplay.style.transform = 'scale(1)';
-    scoreODisplay.style.transform = 'scale(1)';
-  }, 200);
-}
-
-// Save Scores to Local Storage
-function saveScores() {
-  localStorage.setItem('ticTacToeScores', JSON.stringify(scores));
-}
-
-// Load Scores from Local Storage
-function loadScores() {
-  const savedScores = localStorage.getItem('ticTacToeScores');
-  if (savedScores) {
-    scores = JSON.parse(savedScores);
+  /**
+   * UI Rendering & Animations
+   */
+  renderMove(cell, player) {
+    // Apply class to trigger CSS animation (pop-in)
+    cell.classList.add('taken', player === 'X' ? 'x-cell' : 'o-cell');
+    cell.textContent = player;
   }
-}
 
-// Close Popup
-function closePopupHandler() {
-  popup.style.display = 'none';
-}
+  highlightWin(indices) {
+    // Dim the board
+    this.elements.board.classList.add('game-over');
 
-// Event Listeners
-cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-restartBtn.addEventListener('click', restartRound);
-resetScoresBtn.addEventListener('click', resetScores);
-closePopup.addEventListener('click', closePopupHandler);
-playAgainBtn.addEventListener('click', restartRound);
-
-// Keyboard Support - Press 'R' to restart
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'r' || e.key === 'R') {
-    restartRound();
+    // Highlight specific cells
+    indices.forEach(index => {
+      const cell = this.elements.cells[index];
+      cell.classList.add('winning-cell');
+    });
   }
-  if (e.key === 'Escape') {
-    closePopupHandler();
-  }
-});
 
-// Initialize the game on load
-initGame();
-=======
-      showWinner(currentPlayer);
-      return true;
+  updateTurnIndicator() {
+    const pd = this.elements.currentPlayer;
+    const indicator = this.elements.turnIndicator;
+
+    // Text & Color Update
+    pd.textContent = this.state.currentPlayer;
+    pd.style.color = this.state.currentPlayer === 'X' ? 'var(--neon-pink)' : 'var(--neon-cyan)';
+
+    // Trigger Pulse Animation (Remove -> Reflow -> Add)
+    indicator.classList.remove('active-pulse');
+    void indicator.offsetWidth;
+    indicator.classList.add('active-pulse');
+  }
+
+  updateScore(winner) {
+    this.state.scores[winner]++;
+    this.saveScores();
+
+    const scoreEl = winner === 'X' ? this.elements.scoreX : this.elements.scoreO;
+    scoreEl.textContent = this.state.scores[winner];
+
+    // Trigger Pop Animation
+    scoreEl.classList.remove('pop-anim');
+    void scoreEl.offsetWidth;
+    scoreEl.classList.add('pop-anim');
+
+    this.updateLeaderCrowns();
+  }
+
+  updateLeaderCrowns() {
+    const { X, O } = this.state.scores;
+    this.elements.crownX.classList.toggle('active', X > O);
+    this.elements.crownO.classList.toggle('active', O > X);
+  }
+
+  /**
+   * Popups & Overlays
+   */
+  showPopup(winner) {
+    const { popup, popupMessage, popupIcon, popupSubtitle } = this.elements;
+    const color = winner === 'X' ? 'var(--neon-pink)' : (winner === 'O' ? 'var(--neon-cyan)' : '#fff');
+
+    if (winner === 'draw') {
+      popupMessage.textContent = "IT'S A DRAW!";
+      popupIcon.textContent = '🤝';
+      popupSubtitle.textContent = 'A balanced clash.';
+    } else {
+      popupMessage.textContent = `${winner} WINS!`;
+      popupIcon.textContent = '👑';
+      popupSubtitle.textContent = 'Victory secured.';
+    }
+
+    popupMessage.style.color = color;
+
+    popup.style.display = 'flex';
+    void popup.offsetWidth; // Force Reflow
+    popup.classList.add('show');
+  }
+
+  hidePopup() {
+    this.elements.popup.classList.remove('show');
+    setTimeout(() => {
+      this.elements.popup.style.display = 'none';
+    }, 300); // Wait for transition
+  }
+
+  /**
+   * Reset Logic
+   */
+  restartGame() {
+    // 1. Reset State
+    this.state.board.fill(null);
+    this.state.isActive = true;
+    this.state.currentPlayer = 'X';
+
+    // 2. Clean UI
+    this.elements.board.classList.remove('game-over');
+    this.elements.cells.forEach(cell => {
+      cell.className = 'cell'; // Removes taken, x-cell, o-cell, winning-cell
+      cell.textContent = '';
+      cell.style = '';
+    });
+
+    this.updateTurnIndicator();
+  }
+
+  resetScores() {
+    this.state.scores = { X: 0, O: 0 };
+    this.saveScores();
+
+    this.elements.scoreX.textContent = '0';
+    this.elements.scoreO.textContent = '0';
+    this.updateLeaderCrowns();
+
+    this.restartGame();
+  }
+
+  /**
+   * Persistence
+   */
+  saveScores() {
+    localStorage.setItem('ttt_scores', JSON.stringify(this.state.scores));
+  }
+
+  loadScores() {
+    const saved = localStorage.getItem('ttt_scores');
+    if (saved) {
+      this.state.scores = JSON.parse(saved);
     }
   }
-  if (!board.includes('')) {
-    gameActive = false;
-    showWinner('Nobody');
-  }
-  return false;
-}
 
-function showWinner(player) {
-  winnerMessage.textContent = `${player} wins!`;
-  popup.style.display = 'flex';
-}
-
-function handleCellClick(e) {
-  const cell = e.target;
-  const index = cell.getAttribute('data-index');
-
-  if (board[index] || !gameActive) return;
-
-  board[index] = currentPlayer;
-  cell.textContent = currentPlayer;
-  cell.classList.add('taken');
-  
-  // Add color to the current player's move
-  cell.style.color = currentPlayer === 'X' ? '#ff5733' : '#3498db';
-
-  if (!checkWinner()) {
-    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  updateUI() {
+    this.elements.scoreX.textContent = this.state.scores.X;
+    this.elements.scoreO.textContent = this.state.scores.O;
+    this.updateLeaderCrowns();
+    this.updateTurnIndicator();
   }
 }
 
-function restartGame() {
-  board = ['', '', '', '', '', '', '', '', ''];
-  currentPlayer = 'X';
-  gameActive = true;
-  cells.forEach(cell => {
-    cell.textContent = '';
-    cell.classList.remove('taken');
-    cell.style.color = '';  // Reset color
-  });
-}
-
-cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-restartBtn.addEventListener('click', restartGame);
-closePopup.addEventListener('click', () => (popup.style.display = 'none'));
->>>>>>> e2985d3f6d106918e20c923d5df5902a57c3f222
+// Start the Engine
+document.addEventListener('DOMContentLoaded', () => {
+  window.game = new TicTacToe();
+});
